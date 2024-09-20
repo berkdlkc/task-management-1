@@ -1,6 +1,5 @@
-// Kullanıcı kontrol paneli bileşeni
-
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 const UserDashboard = () => {
     const location = useLocation();

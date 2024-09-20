@@ -5,12 +5,12 @@ import styled from 'styled-components';
 
 const users = [
     {
-      username: 'admin_berk',
+      username: 'admin',
       password: 'admin123',
       role: 'admin'
     },
     {
-      username: 'user_berk',
+      username: 'user',
       password: 'user123',
       role: 'user'
     }
