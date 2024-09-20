@@ -1,6 +1,20 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom'; 
 import styled from 'styled-components';
+
+const users = [
+    {
+      username: 'admin_berk',
+      password: 'admin123',
+      role: 'admin'
+    },
+    {
+      username: 'user_berk',
+      password: 'user123',
+      role: 'user'
+    }
+  ];
 
 const Container = styled.div`
     display: flex;
@@ -53,9 +67,24 @@ const Button = styled.button`
 `;
 
 const Login = () => {
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, reset } = useForm();
+    const navigate = useNavigate();
     const onSubmit = async (data) => {
-        alert(`Username: ${data.username}, Password: ${data.password}`);
+        const foundUser = users.find(
+            (user) => user.username === data.username 
+            && user.password === data.password
+        );
+
+        if(foundUser){
+            if(foundUser.role === "admin"){
+                navigate('/AdminDashboard', {state:{username: foundUser.username}});
+            } else if (foundUser.role === "user"){
+                navigate('/UserDashboard', {state: {username: foundUser.username}});
+            } 
+        } else {
+            alert("Invalid username or password")
+            reset();
+        }
     };
 
     return (
