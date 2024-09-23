@@ -1,20 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom'; 
 import styled from 'styled-components';
+import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 
-const users = [
-    {
-      username: 'admin',
-      password: 'admin123',
-      role: 'admin'
-    },
-    {
-      username: 'user',
-      password: 'user123',
-      role: 'user'
-    }
-  ];
 
 const Container = styled.div`
     display: flex;
@@ -69,21 +59,45 @@ const Button = styled.button`
 const Login = () => {
     const { register, handleSubmit, reset } = useForm();
     const navigate = useNavigate();
-    const onSubmit = async (data) => {
-        const foundUser = users.find(
-            (user) => user.username === data.username 
-            && user.password === data.password
-        );
 
-        if(foundUser){
-            if(foundUser.role === "admin"){
-                navigate('/AdminDashboard', {state:{username: foundUser.username}});
-            } else if (foundUser.role === "user"){
-                navigate('/UserDashboard', {state: {username: foundUser.username}});
-            } 
-        } else {
-            alert("Invalid username or password")
-            reset();
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const decodedToken = jwtDecode(token);
+          if (decodedToken.role === 'admin') {
+            navigate('/AdminDashboard', { replace: true });
+          } else if (decodedToken.role === 'user') {
+            navigate('/UserDashboard', { replace: true });
+          }
+        }
+      }, [navigate]);
+
+    const onSubmit = async (data) => {
+
+        try {
+            const response =await axios.post('http://localhost:5000/api/login', data)
+            if (response.data.status === "success") {
+
+                localStorage.setItem('token', response.data.token);
+           
+                const decode_token = jwtDecode(response.data.token);
+
+                if (decode_token.role === "admin") {
+                 console.log("Navigating to Admin Dashboard");
+                  navigate('/AdminDashboard', { replace: true });
+                } else if (decode_token.role === "user") {
+                    console.log("Navigating to User Dashboard");
+                  navigate('/UserDashboard', { replace: true });
+                }
+              }
+
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                navigate('/Register');
+            } else {
+                alert("Giriş başarısız, lütfen bilgilerinizi kontrol edin.");
+                reset();
+            }
         }
     };
 
